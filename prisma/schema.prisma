@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model accounts {
+  account_id   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  acc_balance  Int       @default(0)
+  is_deposited Int       @default(0)
+  level        Int       @default(0)
+  user_id      BigInt    @db.UnsignedBigInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  users        users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "accounts_user_id_foreign")
+
+  @@index([user_id], map: "accounts_user_id_foreign")
+}
+
+model complete_tasks {
+  id          BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  task_id     BigInt                     @db.UnsignedBigInt
+  user_id     BigInt                     @db.UnsignedBigInt
+  task_proof  String                     @db.Text
+  task_status complete_tasks_task_status @default(pending)
+  created_at  DateTime?                  @db.Timestamp(0)
+  updated_at  DateTime?                  @db.Timestamp(0)
+  tasks       tasks                      @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "complete_tasks_task_id_foreign")
+  users       users                      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "complete_tasks_user_id_foreign")
+
+  @@index([task_id], map: "complete_tasks_task_id_foreign")
+  @@index([user_id], map: "complete_tasks_user_id_foreign")
+}
+
+model deposits {
+  deposit_id      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  bank_name       String    @db.VarChar(255)
+  acc_holder_name String    @db.VarChar(255)
+  acc_number      String    @db.VarChar(255)
+  tid             String    @unique(map: "tid") @db.VarChar(255)
+  ref_img         String    @db.VarChar(255)
+  status          String    @default("pending") @db.VarChar(255)
+  user_name       String    @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  users           users     @relation(fields: [user_name], references: [user_name], onDelete: Cascade, onUpdate: Restrict, map: "deposits_user_name_foreign")
+
+  @@index([user_name], map: "deposits_user_name_foreign")
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model gateways {
+  gateway_id      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  bank_name       String    @db.VarChar(255)
+  acc_holder_name String    @db.VarChar(255)
+  acc_number      String    @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model password_resets {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model permotions {
+  permotion_id BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  link         String    @db.VarChar(255)
+  instructions String    @db.VarChar(255)
+  user_id      BigInt    @db.UnsignedBigInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  users        users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "permotions_user_id_foreign")
+
+  @@index([user_id], map: "permotions_user_id_foreign")
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model ref_earning_firsts {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    Int?
+  ref_id     Int?
+  check      Int?      @default(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model ref_models {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id      Int?
+  ref_id       Int?
+  ref_cal      Int       @default(0)
+  reward_track Int       @default(0)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model reward_clicks {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  reward_click Int       @default(0)
+  reward_id    BigInt    @db.UnsignedBigInt
+  user_id      BigInt    @db.UnsignedBigInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  users        users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "reward_clicks_user_id_foreign")
+
+  @@index([user_id], map: "reward_clicks_user_id_foreign")
+}
+
+model rewards {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  link         String    @db.VarChar(255)
+  instructions String    @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model task_tracks {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    Int?
+  task_id    Int?
+  status     Int       @default(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model tasks {
+  id             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  level          Int
+  task_url       String           @db.VarChar(255)
+  task_price     Int
+  task_desc      String           @db.VarChar(255)
+  created_at     DateTime?        @db.Timestamp(0)
+  updated_at     DateTime?        @db.Timestamp(0)
+  complete_tasks complete_tasks[]
+}
+
+model users {
+  user_id        BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  user_name      String           @unique(map: "users_user_name_unique") @db.VarChar(255)
+  email          String           @unique(map: "users_email_unique") @db.VarChar(255)
+  type           String           @default("video") @db.VarChar(255)
+  password       String           @db.VarChar(255)
+  phone          String           @db.VarChar(255)
+  ref_by         String           @default("self") @db.VarChar(255)
+  blocked_at     String?          @db.VarChar(255)
+  is_admin       Int              @default(0)
+  Ref_Cal        Int              @default(0)
+  reward_track   Int              @default(0)
+  created_at     DateTime?        @default(now())
+  updated_at     DateTime?
+  accounts       accounts[]
+  complete_tasks complete_tasks[]
+  deposits       deposits[]
+  permotions     permotions[]
+  reward_clicks  reward_clicks[]
+  withdraws      withdraws[]
+}
+
+model withdraws {
+  withdraw_id     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  acc_holder_name String    @db.VarChar(255)
+  bank_name       String    @db.VarChar(255)
+  acc_number      String    @db.VarChar(255)
+  amount          Int
+  status          String    @default("pending") @db.VarChar(255)
+  user_id         BigInt    @db.UnsignedBigInt
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  users           users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Restrict, map: "withdraws_user_id_foreign")
+
+  @@index([user_id], map: "withdraws_user_id_foreign")
+}
+
+enum complete_tasks_task_status {
+  pending
+  approved
+}

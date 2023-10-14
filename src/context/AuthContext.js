@@ -62,20 +62,41 @@ const AuthProvider = ({ children }) => {
   }, [])
 
   const handleLogin = (params, errorCallback) => {
-    axios
-      .post(authConfig.loginEndpoint, params)
+    console.log('🚀 ~ handleLogin ~ params:', params)
+
+    fetch(authConfig.loginEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(params)
+    })
       .then(async response => {
-        params.rememberMe
-          ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
-          : null
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw new Error(`Network response was not ok: ${response.status}`)
+        }
+      })
+      .then(data => {
+        console.log('🚀 ~ handleLogin ~ data:', data)
+
+        if (params.rememberMe) {
+          window.localStorage.setItem(authConfig.storageTokenKeyName, data.accessToken)
+          window.localStorage.setItem('userData', JSON.stringify(data.user))
+        }
+
         const returnUrl = router.query.returnUrl
-        setUser({ ...response.data.userData })
-        params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
+        setUser({ ...data.user })
+
         const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+
         router.replace(redirectURL)
       })
-      .catch(err => {
-        if (errorCallback) errorCallback(err)
+      .catch(error => {
+        console.error('🚀 ~ handleLogin ~ error:', error)
+
+        // if (errorCallback) errorCallback(error);
       })
   }
 
